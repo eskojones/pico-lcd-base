@@ -26,6 +26,7 @@ add_executable(main
 main.c
 surface.c
 lcd.c
+sprite.c
 )
 
 

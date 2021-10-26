@@ -45,6 +45,22 @@ void surface_fill_rgb (Surface *surface, uint8_t r, uint8_t g, uint8_t b) {
 }
 
 
+void surface_putpixel (Surface *surface, uint16_t x, uint16_t y, uint16_t colour) {
+    surface->pixels[y * surface->width + x] = ((colour << 8) & 0xff00) | (colour >> 8);
+}
+
+
+void surface_putpixel_rgb (Surface *surface, uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b) {
+    uint16_t colour = ((r / 8) << 11) + ((g / 8) << 6) + (b / 8);
+    surface->pixels[y * surface->width + x] = ((colour << 8) & 0xff00) | (colour >> 8);
+}
+
+
+uint16_t surface_getpixel (Surface *surface, uint16_t x, uint16_t y) {
+    return surface->pixels[y * surface->width + x];
+}
+
+
 /*
 *  Copies a region of 'src' surface to an offset within 'dest' surface
 *  Note that this doesnt scale ('destRect' width and height are unused)
@@ -83,11 +99,60 @@ void surface_blit_mask (Surface *dest, Surface *src, Rect *destRect, Rect *srcRe
             int srcX = srcRect->x + x;
             if (srcX < 0 || srcX >= src->width) continue;
             int srcIdx = srcY * src->width + srcX;
+            if (src->pixels[srcIdx] == mask) continue;
             int destX = destRect->x + x;
             if (destX < 0 || destX >= dest->width) continue;
-            if (src->pixels[srcIdx] == mask) continue;
             int destIdx = destY * dest->width + destX;
             dest->pixels[destIdx] = src->pixels[srcIdx];
+        }
+    }
+}
+
+
+void surface_scaleblit (Surface *dest, Surface *src, Rect *destRect, Rect *srcRect) {
+    float scalex = (float)destRect->w / (float)srcRect->w;
+    float scaley = (float)destRect->h / (float)srcRect->h;
+    int srcIdx, destX, destY;
+
+    for (float y = 0; y < destRect->h; y += scaley) {
+        for (float x = 0; x < destRect->w; x += scalex) {
+            int srcX = (float)x / scalex;
+            int srcY = (float)y / scaley;
+            srcIdx = srcY * src->width + srcX;
+            for (int sy = 0; sy < scaley; sy++) {
+                destY = destRect->y + y + sy;
+                if (destY < 0 || destY >= dest->height) continue;
+                for (int sx = 0; sx < scalex; sx++) {
+                    destX = destRect->x + x + sx;
+                    if (destX < 0 || destY >= dest->width) continue;
+                    dest->pixels[destY * dest->width + destX] = src->pixels[srcIdx];
+                }
+            }
+        }
+    }
+}
+
+
+void surface_scaleblit_mask (Surface *dest, Surface *src, Rect *destRect, Rect *srcRect, uint16_t mask) {
+    float scalex = (float)destRect->w / (float)srcRect->w;
+    float scaley = (float)destRect->h / (float)srcRect->h;
+    int srcIdx, destX, destY;
+
+    for (float y = 0; y < destRect->h; y += scaley) {
+        for (float x = 0; x < destRect->w; x += scalex) {
+            int srcX = (float)x / scalex;
+            int srcY = (float)y / scaley;
+            srcIdx = srcY * src->width + srcX;
+            if (src->pixels[srcIdx] == mask) continue;
+            for (int sy = 0; sy < scaley; sy++) {
+                destY = destRect->y + y + sy;
+                if (destY < 0 || destY >= dest->height) continue;
+                for (int sx = 0; sx < scalex; sx++) {
+                    destX = destRect->x + x + sx;
+                    if (destX < 0 || destY >= dest->width) continue;
+                    dest->pixels[destY * dest->width + destX] = src->pixels[srcIdx];
+                }
+            }
         }
     }
 }

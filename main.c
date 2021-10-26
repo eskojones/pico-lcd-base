@@ -8,6 +8,7 @@
 #include "types.h"
 #include "lcd.h"
 #include "surface.h"
+#include "sprite.h"
 
 
 //plz no lawyers its just a joke
@@ -30,30 +31,34 @@ typedef struct {
     Rect screenRect, logoRect;
     uint8_t logoModeX, logoModeY;
     uint8_t r,g,b;
+    Sprite *sprite;
 } State;
 
 
 void update (float delta, State *state) {
-    state->r++;// = rand() % 256;
+    state->r--;// = rand() % 256;
     state->g++;// = rand() % 256;
     state->b--;// = rand() % 256;
 
     if (state->logoModeX == 1) {
         state->screenRect.x += 2;
-        if (state->screenRect.x > LCD_WIDTH - state->logo->width) state->logoModeX = -1;
+        if (--state->screenRect.w < 15) state->screenRect.w = 15;
+        if (state->screenRect.x > LCD_WIDTH - state->screenRect.w) state->logoModeX = -1;
     } else {
         state->screenRect.x -= 2;
+        if (++state->screenRect.w > 100) state->screenRect.w = 100;
         if (state->screenRect.x < 0) state->logoModeX = 1;
     }
 
     if (state->logoModeY == 1) {
         state->screenRect.y += 2;
-        if (state->screenRect.y > LCD_HEIGHT - state->logo->height) state->logoModeY = -1;
+        if (--state->screenRect.h < 6) state->screenRect.h = 6;
+        if (state->screenRect.y > LCD_HEIGHT - state->screenRect.h) state->logoModeY = -1;
     } else {
         state->screenRect.y -= 2;
+        if (++state->screenRect.h > 100) state->screenRect.h = 100;
         if (state->screenRect.y < 0) state->logoModeY = 1;
     }
-
 }
 
 
@@ -74,7 +79,17 @@ void render (float delta, State *state) {
     //Copy the 'logo' surface to the 'screen', using the logoRect to specify the region of the logo
     //to be copied, while the screenRect specifies the destination position (no scaling is done)
     //The mask colour will be ignored in the 'logo' surface, allowing for transparent backgrounds
-    surface_blit_mask(state->screen, state->logo, &state->screenRect, &state->logoRect, WHITE);
+    //surface_blit_mask(state->screen, state->logo, &state->screenRect, &state->logoRect, WHITE);
+
+    //Or do the same but with scaling...
+    surface_scaleblit_mask(state->screen, state->logo, &state->screenRect, &state->logoRect, WHITE);
+
+    sprite_update(state->sprite);
+    Rect rect;
+    rect.x = rect.y = 0;
+    rect.w = 160;
+    rect.h = 130;
+    sprite_draw_mask(state->screen, state->sprite, &rect, WHITE);
 
     //Send the 'screen' surface to the LCD panel (sequential pixels)
     //lcd_draw_surface(state->screen);
@@ -102,17 +117,22 @@ int main(void)
     surface_load(state->logo, LogoChars, 52 * 8, RED, WHITE);
 
     state->r = 255;
-    state->g = 127;
-    state->b = 31;
+    state->g = 63;
+    state->b = 100;
 
     state->logoRect.x = 0;
     state->logoRect.y = 0;
     state->logoRect.w = 52;
     state->logoRect.h = 8;
-    state->screenRect.x = rand() % (LCD_WIDTH - 52);
-    state->screenRect.y = rand() % (LCD_HEIGHT - 8);
+    state->screenRect.x = rand() % (LCD_WIDTH - 104);
+    state->screenRect.y = rand() % (LCD_HEIGHT - 16);
+    state->screenRect.w = 104;
+    state->screenRect.h = 16;
     state->logoModeX = -1 + rand() % 3;
     state->logoModeY = -1 + rand() % 3;
+
+
+    state->sprite = sprite_create(state->logo, 13, 8, 0, 3, 1.0f);
 
     state->frames = 0;
 
