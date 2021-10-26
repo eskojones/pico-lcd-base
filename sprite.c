@@ -21,6 +21,8 @@ Sprite *sprite_create (Surface *atlas, uint16_t width, uint16_t height, uint16_t
 
 
 void sprite_set_frame(Sprite *sprite, uint16_t frameIndex) {
+    if (frameIndex < sprite->startIndex) return;
+    while (frameIndex > sprite->stopIndex) frameIndex -= (sprite->stopIndex - sprite->startIndex);
     Rect atlasRect, frameRect;
     frameRect.x = 0;
     frameRect.y = 0;

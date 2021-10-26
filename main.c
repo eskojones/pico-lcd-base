@@ -36,6 +36,8 @@ typedef struct {
 
 
 void update (float delta, State *state) {
+    sprite_update(state->sprite);
+
     state->r--;// = rand() % 256;
     state->g++;// = rand() % 256;
     state->b--;// = rand() % 256;
@@ -84,11 +86,10 @@ void render (float delta, State *state) {
     //Or do the same but with scaling...
     surface_scaleblit_mask(state->screen, state->logo, &state->screenRect, &state->logoRect, WHITE);
 
-    sprite_update(state->sprite);
     Rect rect;
     rect.x = rect.y = 0;
     rect.w = 160;
-    rect.h = 130;
+    rect.h = 40;
     sprite_draw_mask(state->screen, state->sprite, &rect, WHITE);
 
     //Send the 'screen' surface to the LCD panel (sequential pixels)
@@ -143,12 +144,12 @@ int main(void)
         float deltaUpdate = (t - tLastUpdate) / 1000000.0f;
         float deltaRender = (t - tLastRender) / 1000000.0f;
 
-        if (deltaUpdate >= 0.05f) {
+        if (deltaUpdate >= 0.01f) {
             tLastUpdate = t;
             update(deltaUpdate, state);
         }
 
-        if (deltaRender >= 0.05f) {
+        if (deltaRender >= 0.03333f) {
             tLastRender = t;
             render(deltaRender, state);
         }
