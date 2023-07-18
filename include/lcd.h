@@ -1,6 +1,7 @@
 #ifndef _LCD_H_
 #define _LCD_H_
 
+
 #include "types.h"
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
@@ -64,14 +65,13 @@
 #define CMD_TEST       0xF0 //unknown, Waveshare example claims "Test Command"
 #define CMD_RAMPWRSAVE 0xF6 //unknown, Waveshare example claims "RAM Power Save Mode"
 
-
-int LCD_BacklightSlice;
-int EPD_RST_PIN;
-int EPD_DC_PIN;
-int EPD_BL_PIN;
-int EPD_CS_PIN;
-int EPD_CLK_PIN;
-int EPD_MOSI_PIN;
+extern int LCD_BacklightSlice;
+extern int EPD_RST_PIN;
+extern int EPD_DC_PIN;
+extern int EPD_BL_PIN;
+extern int EPD_CS_PIN;
+extern int EPD_CLK_PIN;
+extern int EPD_MOSI_PIN;
 
 
 int lcd_init ();

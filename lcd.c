@@ -1,5 +1,12 @@
 #include "lcd.h"
 
+int LCD_BacklightSlice;
+int EPD_RST_PIN;
+int EPD_DC_PIN;
+int EPD_BL_PIN;
+int EPD_CS_PIN;
+int EPD_CLK_PIN;
+int EPD_MOSI_PIN;
 
 /*  
 *  Waveshare Pico LCD 1.8inch (C)
