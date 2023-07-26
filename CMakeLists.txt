@@ -26,6 +26,7 @@ add_executable(main
 main.c
 surface.c
 lcd.c
+font.c
 sprite.c
 )
 
@@ -40,7 +41,7 @@ pico_add_extra_outputs(main)
 
 
 ### Linker directive to include libraries (such as what you use from pico-sdk)
-target_link_libraries(main pico_stdlib pico_time hardware_timer hardware_pwm hardware_i2c hardware_spi)
+target_link_libraries(main pico_stdlib pico_time hardware_timer hardware_pwm hardware_i2c hardware_spi hardware_adc)
 
 
 ### Make a 'build' directory and run `cmake ..` from inside it.
