@@ -1,4 +1,8 @@
+#include "font.h"
 #include "lcd.h"
+#include "sprite.h"
+#include "surface.h"
+#include "types.h"
 
 int LCD_BacklightSlice;
 int EPD_RST_PIN;

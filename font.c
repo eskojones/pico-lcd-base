@@ -1,4 +1,8 @@
+#include "surface.h"
 #include "font.h"
+#include "lcd.h"
+#include "sprite.h"
+#include "types.h"
 
 //font is 7x7, from ascii code 32 to 126 (inclusive)
 

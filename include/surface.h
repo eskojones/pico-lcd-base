@@ -4,8 +4,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "types.h"
+#include <stdio.h>
 
+#include "stdbool.h"
+#include "pico/stdlib.h"
+#include "pico/time.h"
+#include "hardware/timer.h"
+#include "hardware/gpio.h"
+#include "hardware/adc.h"
+
+#include "types.h"
 
 typedef struct {
     uint16_t *pixels;
@@ -23,6 +31,7 @@ void        surface_fill_rgb        (Surface *surface, uint8_t r, uint8_t g, uin
 void        surface_putpixel        (Surface *surface, uint16_t x, uint16_t y, uint16_t colour);
 void        surface_putpixel_rgb    (Surface *surface, uint16_t x, uint16_t y, uint8_t r, uint8_t g, uint8_t b);
 uint16_t    surface_getpixel        (Surface *surface, uint16_t x, uint16_t y);
+void        surface_line            (Surface *surface, uint16_t sx, uint16_t sy, uint16_t dx, uint16_t dy, uint16_t colour);
 void        surface_blit            (Surface *dest, Surface *src, Rect *destRect, Rect *srcRect);
 void        surface_blit_mask       (Surface *dest, Surface *src, Rect *destRect, Rect *srcRect, uint16_t mask);
 void        surface_scaleblit       (Surface *dest, Surface *src, Rect *destRect, Rect *srcRect);

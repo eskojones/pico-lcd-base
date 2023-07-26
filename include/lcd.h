@@ -2,12 +2,10 @@
 #define _LCD_H_
 
 
-#include "types.h"
 #include "pico/stdlib.h"
 #include "hardware/spi.h"
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
-#include "surface.h"
 
 
 #define LCD_SPI_PORT spi1

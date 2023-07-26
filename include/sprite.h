@@ -1,10 +1,10 @@
 #ifndef _SPRITE_H_
 #define _SPRITE_H_
 
-#include "types.h"
-#include "surface.h"
 #include "pico/time.h"
 #include "hardware/timer.h"
+
+#include "types.h"
 
 
 typedef struct {

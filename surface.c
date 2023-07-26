@@ -1,7 +1,8 @@
+#include "font.h"
+#include "lcd.h"
+#include "sprite.h"
 #include "surface.h"
-
-
-
+#include "types.h"
 
 
 /*
@@ -58,6 +59,40 @@ void surface_putpixel_rgb (Surface *surface, uint16_t x, uint16_t y, uint8_t r, 
 
 uint16_t surface_getpixel (Surface *surface, uint16_t x, uint16_t y) {
     return surface->pixels[y * surface->width + x];
+}
+
+
+/*
+    draw a line of `colour` from (sx,sy) to (dx,dy) on a given surface
+    using Bresenham's line drawing algorithm
+    https://en.wikipedia.org/wiki/Bresenham's_line_algorithm
+*/
+void surface_line(Surface *surface, uint16_t sx, uint16_t sy, uint16_t dx, uint16_t dy, uint16_t colour) {
+    int16_t diffx = abs(dx - sx),
+            dirx = sx < dx ? 1 : -1;
+    int16_t diffy = -abs(dy - sy),
+            diry = sy < dy ? 1 : -1;
+    int16_t error = diffx + diffy;
+    uint16_t cx = sx, cy = sy;
+
+    while (true) {
+        if (cx >= 0 && cx < LCD_WIDTH 
+         && cy >= 0 && cy < LCD_HEIGHT) {
+            surface_putpixel(surface, cx, cy, colour);
+        }
+        if (cx == dx && cy == dy) break;
+        int16_t e2 = 2 * error;
+        if (e2 >= diffy) {
+            if (cx == dx) break;
+            error += diffy;
+            cx += dirx;
+        }
+        if (e2 <= diffx) {
+            if (cy == dy) break;
+            error += diffx;
+            cy += diry;
+        }
+    }
 }
 
 

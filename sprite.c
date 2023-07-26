@@ -1,4 +1,8 @@
+#include "font.h"
+#include "lcd.h"
 #include "sprite.h"
+#include "surface.h"
+#include "types.h"
 
 
 Sprite *sprite_create (Surface *atlas, uint16_t width, uint16_t height, uint16_t startIdx, uint16_t stopIdx, float delay) {
