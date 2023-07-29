@@ -11,12 +11,49 @@
 #include "hardware/gpio.h"
 #include "hardware/adc.h"
 
+#if CYW43_USES_VSYS_PIN
+#include "pico/cyw43_arch.h"
+#endif
+
+// Pin used for ADC 0
+#define PICO_FIRST_ADC_PIN 26
+
+
 #include "font.h"
 #include "lcd.h"
 #include "sprite.h"
 #include "surface.h"
 #include "types.h"
 
+
+float adc_read_temp () {
+    adc_select_input(4);
+    return 27.0f - ((float)adc_read() * (3.3f / (1 << 12)) - 0.706f) / 0.001721f;
+}
+
+
+float adc_read_vsys () {
+#if CYW43_USES_VSYS_PIN
+    cyw43_thread_enter();
+    // Make sure cyw43 is awake
+    cyw43_arch_gpio_get(CYW43_WL_GPIO_VBUS_PIN);
+#endif
+
+    adc_gpio_init(PICO_VSYS_PIN);
+    adc_select_input(PICO_VSYS_PIN - PICO_FIRST_ADC_PIN);
+    adc_fifo_setup(true, false, 0, false, false);
+    adc_run(true);
+    uint32_t vsys = 0;
+    int ignore_count = 10;
+    while (!adc_fifo_is_empty() || ignore_count-- > 0) adc_fifo_get_blocking();
+    for(int i = 0; i < 10; i++) vsys += adc_fifo_get_blocking();
+    adc_run(false);
+    adc_fifo_drain();
+#if CYW43_USES_VSYS_PIN
+    cyw43_thread_exit();
+#endif
+    return (vsys / 10) * 3 * (3.3f / (1 << 12));
+}
 
 int main () {
     //init std in/out
@@ -25,6 +62,13 @@ int main () {
     //configure the ADC so we can read temp sensor
     adc_init();
     adc_set_temp_sensor_enabled(true);
+    // Pico W uses a CYW43 pin to get VBUS so we need to initialise it
+    #if CYW43_USES_VSYS_PIN
+    if (cyw43_arch_init()) {
+        printf("failed to initialise\n");
+        return 1;
+    }
+    #endif
     adc_gpio_init(PICO_VSYS_PIN);
 
     //init the LCD panel and the surface we'll use to draw
@@ -54,39 +98,12 @@ int main () {
             );
         }
 
-        //read temp sensor and convert to celsius
-        adc_select_input(4); //temp
-        float adc_result = (float)adc_read() * (3.3f / (1 << 12));
-        float tempC = 27.0f - (adc_result - 0.706f) / 0.001721f;
-        //print temperature to screen with font
+        float tempC = adc_read_temp();
         sprintf(str, "Temp: %.2f C", tempC);
         font_print(screen, str, 1, 1, GREEN);
 
-        adc_gpio_init(PICO_VSYS_PIN);
-        adc_select_input(PICO_VSYS_PIN - 26);
-    
-        adc_fifo_setup(true, false, 0, false, false);
-        adc_run(true);
-
-        // We seem to read low values initially - this seems to fix it
-        int ignore_count = 10;
-        while (!adc_fifo_is_empty() || ignore_count-- > 0) {
-            (void)adc_fifo_get_blocking();
-        }
-
-        // read vsys
-        uint32_t vsys = 0;
-        for(int i = 0; i < 10; i++) {
-            uint16_t val = adc_fifo_get_blocking();
-            vsys += val;
-        }
-
-        adc_run(false);
-        adc_fifo_drain();
-
-        vsys /= 10;
-        float voltage_result = vsys * 3 * (3.3f / (1 << 12));
-        sprintf(str, "VSYS: %f V", voltage_result);
+        float vsys = adc_read_vsys();
+        sprintf(str, "VSYS: %f V", vsys);
         font_print(screen, str, 1, 9, GREEN);
 
         //send the surface to the lcd
@@ -94,5 +111,9 @@ int main () {
         sleep_ms(100);
         frame++;
     }
+
+    #if CYW43_USES_VSYS_PIN
+        cyw43_arch_deinit();
+    #endif
     return 0;
 }
