@@ -9,6 +9,9 @@
 ### Import pico-sdk...
 cmake_minimum_required(VERSION 3.12)
 include(pico_sdk_import.cmake)
+set(PICO_BOARD pico)
+###Pico W support if needed...
+#set(PICO_BOARD pico_w)
 project(Pico_LCD_Base)
 pico_sdk_init()
 
