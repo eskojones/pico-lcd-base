@@ -30,6 +30,8 @@ main.c
 surface.c
 lcd.c
 font.c
+font_5x5.c
+font_7x7.c
 sprite.c
 )
 

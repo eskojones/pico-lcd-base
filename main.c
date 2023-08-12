@@ -55,6 +55,7 @@ float adc_read_vsys () {
     return (vsys / 10) * 3 * (3.3f / (1 << 12));
 }
 
+
 int main () {
     //init std in/out
     stdio_init_all();
@@ -73,8 +74,21 @@ int main () {
 
     //init the LCD panel and the surface we'll use to draw
     lcd_init();
-    lcd_set_backlight(25);
+    lcd_set_backlight(1);
     Surface *screen = surface_create(LCD_WIDTH, LCD_HEIGHT);
+
+    //setup fonts for font_print()
+    Font font_small = {
+        font_5x5, //const char* in font_5x5.c
+        5, 5, 1, //5x5 font with 1px spacing
+        32, 126  //ascii 32 to 126 inclusive
+    };
+
+    Font font_medium = {
+        font_7x7, 
+        7, 7, 1,
+        32, 126
+    };
 
     srand(1337);
     char str[256];
@@ -82,6 +96,7 @@ int main () {
     while(1) {
         //clear screen
         surface_fill(screen, BLACK);
+        /*
         int offs = frame % 16;
         for (int i = 0; i <= 20; i++) {
             surface_line(
@@ -97,14 +112,23 @@ int main () {
                 CYAN
             );
         }
+        */
 
         float tempC = adc_read_temp();
-        sprintf(str, "Temp: %.2f C", tempC);
-        font_print(screen, str, 1, 1, GREEN);
+        sprintf(str, "Temperature: %.2f C", tempC);
+        font_print(screen, &font_small, str, 1, 1, RED);
 
         float vsys = adc_read_vsys();
         sprintf(str, "VSYS: %f V", vsys);
-        font_print(screen, str, 1, 9, GREEN);
+        font_print(screen, &font_small, str, 1, 7, MAGENTA);
+
+        font_print(screen, &font_small, "abcdefghijklmno", 1, 13, 32767 + rand() % 32767);
+        font_print(screen, &font_small, "pqrstuvwxyz    ", 1, 19, 32767 + rand() % 32767);
+        font_print(screen, &font_small, "ABCDEFGHIJKLMNO", 1, 25, 32767 + rand() % 32767);
+        font_print(screen, &font_small, "PQRSTUVWXYZ    ", 1, 31, 32767 + rand() % 32767);
+        font_print(screen, &font_small, "0123456789-=_+~", 1, 37, 32767 + rand() % 32767);
+        font_print(screen, &font_small, "!@#$%^&*()[]{}\\", 1, 43, 32767 + rand() % 32767);
+        font_print(screen, &font_small, "<>?:\"|,./;'|`", 1, 47, 32767 + rand() % 32767);
 
         //send the surface to the lcd
         lcd_draw_surface(screen);
