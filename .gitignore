@@ -4,3 +4,9 @@
 pico-sdk-*
 build/
 *.cmake
+*.o
+*.out
+*.exe
+*.com
+*.elf
+*.uf2
