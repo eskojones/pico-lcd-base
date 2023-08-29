@@ -8,6 +8,7 @@
 #include "hardware/i2c.h"
 #include "hardware/pwm.h"
 
+#define PICO_LCD_BASE
 
 #define LCD_SPI_PORT spi1
 #define LCD_WIDTH 160
