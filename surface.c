@@ -1,9 +1,6 @@
 #include "font.h"
-#include "lcd.h"
-#include "sprite.h"
 #include "surface.h"
-#include "types.h"
-
+#include "lcd.h"
 
 /*
 *  Create a new surface and allocate memory
@@ -75,7 +72,7 @@ void surface_line(Surface *surface, uint16_t sx, uint16_t sy, uint16_t dx, uint1
     int16_t error = diffx + diffy;
     uint16_t cx = sx, cy = sy;
 
-    while (true) {
+    while (1) {
         if (cx >= 0 && cx < LCD_WIDTH 
          && cy >= 0 && cy < LCD_HEIGHT) {
             surface_putpixel(surface, cx, cy, colour);
@@ -91,6 +88,30 @@ void surface_line(Surface *surface, uint16_t sx, uint16_t sy, uint16_t dx, uint1
             if (cy == dy) break;
             error += diffx;
             cy += diry;
+        }
+    }
+}
+
+
+void surface_circle (Surface *surface, uint16_t x0, uint16_t y0, uint16_t r, uint16_t colour) {
+    int x = r, y = 0, err = 0;
+
+    while (x >= y) {
+        surface_putpixel(surface, x0 + x, y0 + y, colour);
+        surface_putpixel(surface, x0 + y, y0 + x, colour);
+        surface_putpixel(surface, x0 - y, y0 + x, colour);
+        surface_putpixel(surface, x0 - x, y0 + y, colour);
+        surface_putpixel(surface, x0 - x, y0 - y, colour);
+        surface_putpixel(surface, x0 - y, y0 - x, colour);
+        surface_putpixel(surface, x0 + y, y0 - x, colour);
+        surface_putpixel(surface, x0 + x, y0 - y, colour);
+        if (err <= 0) {
+            y++;
+            err += 2 * y + 1;
+        }
+        if (err > 0) {
+            x--;
+            err -= 2 * x + 1;
         }
     }
 }

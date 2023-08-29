@@ -1,6 +1,7 @@
 #ifndef _LCD_H_
 #define _LCD_H_
 
+#include "surface.h"
 
 #include "pico/stdlib.h"
 #include "hardware/spi.h"

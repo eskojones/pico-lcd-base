@@ -1,7 +1,5 @@
 #include "surface.h"
 #include "font.h"
-#include "sprite.h"
-#include "types.h"
 
 
 
@@ -29,3 +27,4 @@ void font_print (Surface *surface, Font *font, char *text, uint16_t x, uint16_t 
         }
     }
 }
+
