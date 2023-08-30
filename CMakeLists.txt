@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 3.12)
 ### RPI Pico + Pico_LCD Barebones CMakeList
 ### - Get pico-sdk from https://github.com/raspberrypi/pico-sdk
 ### - `export PICO_SDK_PATH=/path/to/sdk`
@@ -7,51 +8,39 @@
 
 
 ### Import pico-sdk...
-cmake_minimum_required(VERSION 3.12)
 include(pico_sdk_import.cmake)
+
+### Select the Pico you are building for...
 set(PICO_BOARD pico)
-###Pico W support if needed...
 #set(PICO_BOARD pico_w)
-project(Pico_LCD_Base)
+
+### Project/Target Name
+project(pico_lcd_base)
+
+### Gather source and header filenames
+file(GLOB SOURCES *.c)
+file(GLOB HEADERS include/*.h)
+
+### Let the pico-sdk do it's initialisation
 pico_sdk_init()
 
+include_directories(include)
+### Set target as a static library
+add_library(${PROJECT_NAME} STATIC ${SOURCES})
 
-### Add Subdirectories to include source files from here...
-### e.g.: add_subdirectory(mylibs/mylibrary)
+### (OPTIONAL) Global installation for .a and headers
+#install(TARGETS ${PROJECT_NAME} DESTINATION lib/${PROJECT_NAME})
+#install(FILES ${HEADERS} DESTINATION include/${PROJECT_NAME})
 
-
-### Add include directories here...
-### e.g.. include_directories(./includes/mylibrary)
-include_directories(./include)
-
-### Define the output executable...
-add_executable(main 
-main.c
-surface.c
-lcd.c
-font.c
-font_5x5.c
-font_7x7.c
-sprite.c
-)
-
-
-### Enable usb output, Disable UART output...
-pico_enable_stdio_usb(main 1)
-pico_enable_stdio_uart(main 1)
-
-
-### Create all output files (map/bin/hex/uf2)
-pico_add_extra_outputs(main)
-
+pico_enable_stdio_usb(pico_lcd_base 1)
+pico_enable_stdio_uart(pico_lcd_base 1)
 
 ### Linker directive to include libraries (such as what you use from pico-sdk)
-target_link_libraries(main pico_stdlib pico_time hardware_timer hardware_pwm hardware_i2c hardware_spi hardware_adc)
+target_link_libraries(pico_lcd_base pico_stdlib pico_time hardware_timer hardware_pwm hardware_i2c hardware_spi hardware_adc)
 
 
 ### Make a 'build' directory and run `cmake ..` from inside it.
 ### Compile and link project with `make -j9` from the 'build' directory.
-
 
 ### *** If CMake is failing under WSL ***
 ### - Edit /etc/wsl.conf and put this in it:
